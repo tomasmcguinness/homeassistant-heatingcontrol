@@ -33,7 +33,10 @@ from homeassistant.const import (
 RADIATOR_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
-        vol.Required("mwt_sensor"): cv.string,
+        vol.Required("mean_temperature_sensor"): cv.string,
+        vol.Required("flow_temperature_sensor"): cv.string,
+        vol.Required("return_temperature_sensor"): cv.string,
+        vol.Required("nominal_output"): cv.positive_int,
     }
 )
 
@@ -44,7 +47,8 @@ ROOM_SCHEMA = vol.Schema(
         vol.Required("target_temperature"): cv.positive_int,
         vol.Required("radiators", default=[]): vol.All(
             cv.ensure_list, [RADIATOR_SCHEMA]
-        )
+        ),
+        vol.Required("heat_loss"): cv.positive_int
     }
 )
 
@@ -103,106 +107,37 @@ async def async_setup(hass: HomeAssistant, config: ConfigEntry) -> bool:
     for room in rooms_config:
         room_name = room.get("name")
         room_id = room_name.replace(" ", "_").lower()
+        target_temperature = room.get("target_temperature")
+        heat_loss = room.get("heat_loss")
         
-        r = house.Room(hass, room_id, room_name, h)
+        r = house.Room(hass, room_id, room_name, target_temperature, heat_loss, h)
         h.rooms.append(r)
+        
+        radiators = room.get("radiators")
+        
+        for radiator in radiators:
+            radiator_name = radiator.get("name")
+            radiator_id = radiator_name.replace(" ", "_").lower()
+            nominal_output = radiator.get("nominal_output")
+            
+            rad = house.Radiator(hass, radiator_id, radiator_name, nominal_output, r, h)
+            
+            r.radiators.append(rad)
+        
         
     hass.data[DOMAIN] = h
     
     hass.helpers.discovery.load_platform('sensor', DOMAIN, {}, config)
     
-    # Listen for changes in all the sensors related to heating.
-    # Loop through teh configuration and setup the various rooms.
-    
-    #entity_ids = ['sensor.radiator_8_flow_temperature']
-    
-    #unsub = async_track_state_change_event(hass, entity_ids, _async_on_change)
-    
-    #hass.async_create_task(async_manage_radiators(hass))
-    
-    
-    #new_entities = []
-
-
-        
-        # Add the sensors for this room!
-    
-    #async_add_entities(new_entities)
-    
-    async def async_update_data():
-        _LOGGER.info("Running heating control loop...")
-        
-        # The control loop has a simple job. Check the temperature of each room vs it's desired temperature.
-        # If there is a shortfall:
-        #
-        # Adjust the radiator's output by changing the TRV.
-        # If the TRV is full open, it may be necessary to increase the boiler's flow temperature.
-        
-        for room in h.rooms:
-            _LOGGER.info("Processing " + room.name)
-            
-            #try:
-                # First, work out the difference between the target temp and the actual temp!
-                
-            #current_temperature_sensor_name = room.get("current_temperature_sensor")
-            #target_temperature = room.get("target_temperature")
-            
-            _LOGGER.info("Fetching current temperature sensor")
-            
-            current_temperature_entity = hass.states.get("sensor.sitting_room_temperature")
-            
-            if current_temperature_entity != None:
-            
-            #_LOGGER.info(current_temperature_entity)
-            
-            #_LOGGER.info(current_temperature_entity.state)
-            #_LOGGER.info(current_temperature_entity.domain)
-            
-            #temperature_difference = target_temperature - int(current_temperature_entity.state)
-            
-                room.set_current_temperature(int(current_temperature_entity.state))
-            
-            #hass.states.async_set('heating_control.Hello_World', temperature_difference)
-
-                
-            # except:
-            #     _LOGGER.error("Something went wrong")
-        
-        #h.publish_updates()
-        
-    #coordinator = DataUpdateCoordinator(hass, _LOGGER, name="HeatingControl", update_method = async_update_data, update_interval = timedelta(seconds=10))
-    
     async def on_hass_started(event):
         _LOGGER.info("Home Assistant has started!")
         
-       
-        #unsub()
-        #await coordinator.async_config_entry_first_refresh()
-
     hass.bus.async_listen_once('homeassistant_start', on_hass_started)
-    
-    #
-    #await coordinator.async_config_entry_first_refresh()
     
     hass.states.async_set('heating_control.status', 'Running')
     
     return True
 
-# @callback
-# def _async_on_change(event: Event[EventStateChangedData]) -> None:
-#     entity_id = event.data["entity_id"]
-#     old_state = event.data["old_state"]
-#     new_state = event.data["new_state"]
-    
-#     _LOGGER.info("State change for " + entity_id)
-#     _LOGGER.info("State: " + new_state)
-    
-#     # Find the room connected to this entity and do something with the updated information!
-#     #
-#     for room in self.hass.data[DOMAIN].rooms:
-#         room.set_current_temperature
-        
-    
 async def async_manage_radiators(hass):
     while True:
         _LOGGER.warning("Checking radiators")

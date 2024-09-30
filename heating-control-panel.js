@@ -19,17 +19,15 @@ class ExamplePanel extends LitElement {
   // requestUpdate() {
   //   (async () => await loadHaForm())();
   // }
-  
+
   render() {
 
     let config = this.panel.config["_panel_custom"].config.heating_control;
 
-    //console.log(this.hass.states["sensor.sitting_room_temperature"]);
-
     return html`
      <ha-top-app-bar-fixed>
       <div slot="title">Heating Control</div>
-      <ha-config-section .narrow=${this.narrow} full-width>
+      <ha-config-section full-width>
         <ha-gauge value="75" style="--gauge-color: red">
         </ha-gauge>
         <ha-card>
@@ -38,8 +36,9 @@ class ExamplePanel extends LitElement {
         <ha-switch />
         </div>
         </ha-card>
+        ${config.rooms.map((room) => html`
         <ha-card>
-          <h1 class="card-header">${config.rooms.map((room) => html`${room.name}` )}</h1>
+          <h1 class="card-header">${room.name}</h1>
           <div class="card-content">
             <table>
             <tbody>
@@ -52,11 +51,44 @@ class ExamplePanel extends LitElement {
             <tr>
             <td>Temperature Difference</td><td>${this.hass.states["sensor.sitting_room_temperature_difference"].state}°C</td>
             </tr>
+             <tr>
+            <td>Heat Demand</td><td>${this.hass.states["sensor.sitting_room_heat_demand"].state}W</td>
+            </tr>
             </tbody>
             </table>
+
+            <div>
+            ${room.radiators.map((radiator) => html`
+              <ha-card>
+              <h1 class="card-header">${radiator.name}</h1>
+              <div class="card-content">
+            <table>
+            <tbody>
+            <tr>
+            <td>Flow Temperature</td><td>${this.hass.states["sensor.radiator_sensor_8_flow_temperature"].state}°C</td>
+            </tr>
+            <tr>
+            <td>Mean Temperature</td><td>${this.hass.states["sensor.radiator_sensor_8_mean_temperature"].state}°C</td>
+            </tr>
+            <tr>
+            <td>Return Temperature</td><td>${this.hass.states["sensor.radiator_sensor_8_return_temperature"].state}°C</td>
+            </tr>
+            <tr>
+            <td>Heat Output</td><td>${this.hass.states["sensor.radiator_8_heat_output"].state}W</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+
+
+
+              </ha-card>
+            ` )}
+            </div>
           </div>
         </ha-card>
-         </ha-config-section>
+        ` )}
+        </ha-config-section>
       </ha-top-app-bar-fixed>
     `;
   }
@@ -67,7 +99,7 @@ class ExamplePanel extends LitElement {
     `;
   }
 
-  
+
 }
 
 customElements.define("heating-control-panel", ExamplePanel);
