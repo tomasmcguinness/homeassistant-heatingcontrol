@@ -20,7 +20,8 @@ async def async_setup_platform(hass, config, async_add_entities: AddEntitiesCall
     
     for room in h.rooms: 
         new_devices.append(TemperatureDifferenceSensor(room))
-        new_devices.append(HeatDemandSensor(room))
+        new_devices.append(CurrentHeatDemandSensor(room))
+        new_devices.append(TargetHeatDemandSensor(room))
         
         for radiator in room.radiators:
             new_devices.append(RadiatorOutputSensor(radiator))
@@ -71,22 +72,43 @@ class TemperatureDifferenceSensor(RoomSensorBase):
     def state(self):
         return self._room.temperature_difference
     
-class HeatDemandSensor(RoomSensorBase):
+class CurrentHeatDemandSensor(RoomSensorBase):
     
     device_class = SensorDeviceClass.POWER
-
+    unit_of_measurement = "W"
+    suggested_display_precision = 0
+    
     def __init__(self, room):
         super().__init__(room)
 
-        self._attr_unique_id = f"{self._room.room_id}_heat_demand"
+        self._attr_unique_id = f"{self._room.room_id}_current_heat_demand"
 
-        self._attr_name = f"{self._room.name} Heat Demand"
+        self._attr_name = f"{self._room.name} Current Heat Demand"
 
         self._state = 0
 
     @property
     def state(self):
-        return self._room.heat_demand
+        return self._room.current_heat_demand
+    
+class TargetHeatDemandSensor(RoomSensorBase):
+    
+    device_class = SensorDeviceClass.POWER
+    unit_of_measurement = "W"
+    suggested_display_precision = 0
+    
+    def __init__(self, room):
+        super().__init__(room)
+
+        self._attr_unique_id = f"{self._room.room_id}_target_heat_demand"
+
+        self._attr_name = f"{self._room.name} Target Heat Demand"
+
+        self._state = 0
+
+    @property
+    def state(self):
+        return self._room.target_heat_demand
     
 class RadiatorSensorBase(Entity):
     
@@ -113,6 +135,8 @@ class RadiatorSensorBase(Entity):
 class RadiatorOutputSensor(RadiatorSensorBase):
     
     device_class = SensorDeviceClass.POWER
+    unit_of_measurement = "W"
+    suggested_display_precision = 0
 
     def __init__(self, radiator):
         super().__init__(radiator)

@@ -16,9 +16,9 @@ class ExamplePanel extends LitElement {
     };
   }
 
-  // requestUpdate() {
-  //   (async () => await loadHaForm())();
-  // }
+  requestUpdate() {
+    (async () => await loadHaForm())();
+  }
 
   render() {
 
@@ -31,9 +31,15 @@ class ExamplePanel extends LitElement {
         <ha-gauge value="75" style="--gauge-color: red">
         </ha-gauge>
         <ha-card>
-         <h1 class="card-header">Boiler</h1>
+         <h1 class="card-header">House</h1>
         <div class="card-content">
-        <ha-switch />
+         <table>
+            <tbody>
+            <tr>
+            <td>Outdoor Temperature</td><td>${this.hass.states["sensor.outdoor_temperature"].state}°C</td>
+            </tr>
+            </tbody>
+          </table>
         </div>
         </ha-card>
         ${config.rooms.map((room) => html`
@@ -52,7 +58,10 @@ class ExamplePanel extends LitElement {
             <td>Temperature Difference</td><td>${this.hass.states["sensor.sitting_room_temperature_difference"].state}°C</td>
             </tr>
              <tr>
-            <td>Heat Demand</td><td>${this.hass.states["sensor.sitting_room_heat_demand"].state}W</td>
+            <td>Current Heat Demand</td><td>${this.hass.states["sensor.sitting_room_current_heat_demand"].state}W</td>
+            </tr>
+             <tr>
+            <td>Target Heat Demand</td><td>${this.hass.states["sensor.sitting_room_target_heat_demand"].state}W</td>
             </tr>
             </tbody>
             </table>
