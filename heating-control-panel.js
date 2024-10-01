@@ -49,7 +49,7 @@ class ExamplePanel extends LitElement {
             <table>
             <tbody>
             <tr>
-            <td>Current Temperature</td><td>${this.hass.states["sensor.sitting_room_temperature"].state}°C</td>
+            <td>Current Temperature</td><td>${this.hass.states[room.current_temperature_sensor].state}°C</td>
             </tr>
             <tr>
             <td>Target Temperature</td><td>21°C</td>

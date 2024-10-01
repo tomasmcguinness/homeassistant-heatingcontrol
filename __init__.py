@@ -109,10 +109,11 @@ async def async_setup(hass: HomeAssistant, config: ConfigEntry) -> bool:
     for room in rooms_config:
         room_name = room.get("name")
         room_id = room_name.replace(" ", "_").lower()
+        current_temperature_sensor = room.get("current_temperature_sensor")
         target_temperature = room.get("target_temperature")
         heat_loss = room.get("heat_loss")
         
-        r = house.Room(hass, room_id, room_name, target_temperature, heat_loss, h)
+        r = house.Room(hass, room_id, room_name, current_temperature_sensor, target_temperature, heat_loss, h)
         h.rooms.append(r)
         
         radiators = room.get("radiators")

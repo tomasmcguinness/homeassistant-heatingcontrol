@@ -66,7 +66,7 @@ class House:
 
 class Room:
     
-    def __init__(self, hass, room_id: str, name: str, target_temperature: float, heat_loss: int, house: House) -> None:
+    def __init__(self, hass, room_id: str, name: str, current_temperature_sensor:str, target_temperature: float, heat_loss: int, house: House) -> None:
         self._hass = hass
         self._id = room_id
     
@@ -84,7 +84,7 @@ class Room:
         self._callbacks = set()
         self._loop = asyncio.get_event_loop()
         
-        self.unsub = async_track_state_change_event(hass, ["sensor.sitting_room_temperature"], self._async_on_change)
+        self.unsub = async_track_state_change_event(hass, [current_temperature_sensor], self._async_on_change)
     
     @callback
     def _async_on_change(self, event: Event[EventStateChangedData]) -> None:
