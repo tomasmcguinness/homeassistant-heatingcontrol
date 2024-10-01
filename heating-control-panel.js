@@ -30,7 +30,7 @@ class ExamplePanel extends LitElement {
       <ha-config-section full-width>
         <ha-gauge value="75" style="--gauge-color: red">
         </ha-gauge>
-        <ha-card>
+        <ha-card class="main">
          <h1 class="card-header">House</h1>
         <div class="card-content">
          <table>
@@ -43,7 +43,7 @@ class ExamplePanel extends LitElement {
         </div>
         </ha-card>
         ${config.rooms.map((room) => html`
-        <ha-card>
+        <ha-card class="main">
           <h1 class="card-header">${room.name}</h1>
           <div class="card-content">
             <table>
@@ -103,7 +103,11 @@ class ExamplePanel extends LitElement {
 
   static get styles() {
     return css`
-      
+      ha-card.main {
+        margin-top: 24px;
+        margin-left: 24px;
+        margin-right: 24px;
+      }
     `;
   }
 

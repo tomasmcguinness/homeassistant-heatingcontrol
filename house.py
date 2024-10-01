@@ -15,7 +15,7 @@ class House:
 
     manufacturer = "Tom Inc"
 
-    def __init__(self, hass: HomeAssistant, name: str) -> None:
+    def __init__(self, hass: HomeAssistant, name: str, outdoor_temperature_sensor: str) -> None:
         """Init dummy hub."""
         self._hass = hass
         self._id = name.lower()
@@ -27,7 +27,7 @@ class House:
         self._callbacks = set()
         self._loop = asyncio.get_event_loop()
 
-        self.unsub = async_track_state_change_event(hass, ["sensor.outdoor_temperature"], self._async_on_change)
+        self.unsub = async_track_state_change_event(hass, [outdoor_temperature_sensor], self._async_on_change)
     
     @callback
     def _async_on_change(self, event: Event[EventStateChangedData]) -> None:

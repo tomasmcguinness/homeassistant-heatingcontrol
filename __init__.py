@@ -101,9 +101,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigEntry) -> bool:
         },
     )
     
-    rooms_config = config.get(DOMAIN).get("rooms")
+    root_config = config.get(DOMAIN)
+    rooms_config = root_config.get("rooms")
     
-    h = House(hass, "NasebyRoad")
+    h = House(hass, "NasebyRoad", root_config.get("outdoor_temperature_sensor") )
     
     for room in rooms_config:
         room_name = room.get("name")
