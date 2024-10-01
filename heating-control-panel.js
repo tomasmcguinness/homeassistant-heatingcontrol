@@ -36,7 +36,7 @@ class ExamplePanel extends LitElement {
          <table>
             <tbody>
             <tr>
-            <td>Outdoor Temperature</td><td>${this.hass.states["sensor.outdoor_temperature"].state}°C</td>
+            <td>Outdoor Temperature</td><td>${this.hass.states[config.outdoor_temperature_sensor].state}°C</td>
             </tr>
             </tbody>
           </table>
@@ -65,7 +65,6 @@ class ExamplePanel extends LitElement {
             </tr>
             </tbody>
             </table>
-
             <div>
             ${room.radiators.map((radiator) => html`
               <ha-card>

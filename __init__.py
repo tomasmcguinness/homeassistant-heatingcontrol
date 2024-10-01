@@ -56,6 +56,7 @@ CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
             {
+                vol.Required("outdoor_temperature_sensor"): cv.string,
                 vol.Required("rooms", default=[]): vol.All(
                     cv.ensure_list, [ROOM_SCHEMA]
                 ),
