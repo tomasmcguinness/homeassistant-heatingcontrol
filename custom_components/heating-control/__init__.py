@@ -79,36 +79,27 @@ async def async_setup(hass: HomeAssistant, config: ConfigEntry) -> bool:
         [
             StaticPathConfig(
                 SETTINGS_PANEL_URL,
-                hass.config.path("custom_components/heating_control/heating-control-panel.js"),
+                hass.config.path("custom_components/heating_control/heating_control_panel.js"),
                 True,
             )
         ]
     )
-    
-    async_register_built_in_panel(
-        hass=hass,
-        component_name="custom",
-        sidebar_title="Heating",
-        sidebar_icon="mdi:fire",
-        frontend_url_path="heating-control",
-        require_admin=False,
-        config={
-            "_panel_custom": {
-                "name": "heating-control-panel",
-                "module_url": SETTINGS_PANEL_URL,
-                "config": config
-            }
-        },
-    )
-    
+
+    # Push some of the sensor names into the config before sending it to the FE.
+
     root_config = config.get(DOMAIN)
     rooms_config = root_config.get("rooms")
-    
+
     h = House(hass, "NasebyRoad", root_config.get("outdoor_temperature_sensor") )
     
     for room in rooms_config:
         room_name = room.get("name")
         room_id = room_name.replace(" ", "_").lower()
+        
+        # Add some sensor names to the config objects. y
+        room.current_heat_demand_sensor = "sensor." + room_id + "_current_heat_demand"
+        
+        
         current_temperature_sensor = room.get("current_temperature_sensor")
         target_temperature = room.get("target_temperature")
         heat_loss = room.get("heat_loss")
@@ -127,9 +118,25 @@ async def async_setup(hass: HomeAssistant, config: ConfigEntry) -> bool:
             
             r.radiators.append(rad)
         
-        
     hass.data[DOMAIN] = h
+
+    async_register_built_in_panel(
+        hass=hass,
+        component_name="custom",
+        sidebar_title="Heating",
+        sidebar_icon="mdi:fire",
+        frontend_url_path="heating-control",
+        require_admin=False,
+        config={
+            "_panel_custom": {
+                "name": "heating-control-panel",
+                "module_url": SETTINGS_PANEL_URL,
+                "config": config
+            }
+        },
+    )
     
+    # Start the sensor platform!
     hass.helpers.discovery.load_platform('sensor', DOMAIN, {}, config)
     
     async def on_hass_started(event):
